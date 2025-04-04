@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -20,16 +21,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.navigation.NavController
 import com.example.pfebusapp.AuthState
 import com.example.pfebusapp.AuthViewModel
+import com.example.pfebusapp.uiComponents.BottomNavigationBar
 import com.example.pfebusapp.userRepository.RegistredUser
 import com.example.pfebusapp.userRepository.UserRepository
-import java.util.Date
 
 @Composable
 fun HomePage(modifier: Modifier = Modifier, navController: NavController, authViewModel: AuthViewModel) {
@@ -87,37 +86,52 @@ fun HomePage(modifier: Modifier = Modifier, navController: NavController, authVi
 //        }
 //    )
 
-    Column(
-        modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(text = authViewModel.getCurrentUser()?.uid ?: "NULL", fontSize = 32.sp, color = Color.Blue)
-       Text(text = "Home page", fontSize = 32.sp)
+    Scaffold (
+       bottomBar = {
+           BottomNavigationBar(navController = navController)
+       }
+    ) { paddingValues ->
+        Column(
+            modifier = modifier.fillMaxSize()
+                .padding(paddingValues),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(text = authViewModel.getCurrentUser()?.uid ?: "NULL", fontSize = 32.sp, color = Color.Blue)
+            Text(text = "Home page", fontSize = 32.sp)
 
-        when {
-            isLoading -> {
-                CircularProgressIndicator()
-                Text(text = "Loading user data...", Modifier.padding(top = 16.dp))
+            when {
+                isLoading -> {
+                    CircularProgressIndicator()
+                    Text(text = "Loading user data...", Modifier.padding(top = 16.dp))
+                }
+                errorMessage != null -> {
+                    Text(text = "Error: $errorMessage", color = Color.Red)
+                }
+                userData != null -> {
+                    Text(text = userData!!.nom, fontSize = 32.sp)
+                    Text(text = userData!!.prenom, fontSize = 16.sp)
+                    Text(text = userData!!.email, fontSize = 16.sp)
+                }
+                else -> {
+                    Text(text = "No user data available")
+                }
             }
-            errorMessage != null -> {
-                Text(text = "Error: $errorMessage", color = Color.Red)
-            }
-            userData != null -> {
-                Text(text = userData!!.nom, fontSize = 32.sp)
-                Text(text = userData!!.prenom, fontSize = 16.sp)
-                Text(text = userData!!.email, fontSize = 16.sp)
-            }
-            else -> {
-                Text(text = "No user data available")
-            }
-        }
 
-        Spacer(modifier = modifier.height(24.dp))
-        TextButton(onClick = {
-            authViewModel.signout()
-        }) {
-            Text(text = "Sign out")
+            Spacer(modifier = modifier.height(24.dp))
+            TextButton(onClick = {
+                authViewModel.signout()
+            }) {
+                Text(text = "Sign out")
+            }
+
+            TextButton(
+                onClick = {
+                    navController.navigate("busRoutes")
+                }
+            ) {
+                Text(text = "Bus Routes")
+            }
         }
     }
 }

@@ -28,7 +28,6 @@ import com.example.pfebusapp.AuthViewModel
 import com.example.pfebusapp.uiComponents.DatePickerTextField
 import com.example.pfebusapp.uiComponents.PhoneNumberTextField
 import com.example.pfebusapp.userRepository.UserRepository
-import kotlinx.coroutines.runBlocking
 import java.util.Date
 
 @Composable
