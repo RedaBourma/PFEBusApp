@@ -1,7 +1,11 @@
 package com.example.pfebusapp.uiComponents
 
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -12,13 +16,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun PhoneNumberTextField(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
-    label: String = "Phone Number",
+    label: String = "Numéro de téléphone",
     isError: Boolean = false,
     errorMessage: String = "",
 ) {
@@ -35,12 +40,28 @@ fun PhoneNumberTextField(
                 onValueChange(digitsOnly)
             }
         },
-        label = { Text(label)},
-        modifier = Modifier,
+        label = { Text(label, style = MaterialTheme.typography.bodyMedium) },
+        modifier = modifier,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
         isError = isError,
-        supportingText = if(isError) {{ Text(errorMessage)}} else null,
-        singleLine = true
+        supportingText = if(isError) { { 
+            Text(
+                errorMessage,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error
+            ) 
+        }} else null,
+        singleLine = true,
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+            cursorColor = MaterialTheme.colorScheme.primary,
+            focusedLabelColor = MaterialTheme.colorScheme.primary,
+            errorBorderColor = MaterialTheme.colorScheme.error,
+            errorLabelColor = MaterialTheme.colorScheme.error
+        ),
+        shape = RoundedCornerShape(12.dp),
+        textStyle = MaterialTheme.typography.bodyLarge
     )
 }
 
@@ -58,10 +79,11 @@ private fun formatPhoneNumber(digits: String) : String {
 @Composable
 private fun PhoneNumberTextFieldPreview() {
     var phoneNumber by remember { mutableStateOf("") }
-   PhoneNumberTextField(
-       value = phoneNumber,
-       onValueChange = {
-           phoneNumber = it
-       }
-   )
+    PhoneNumberTextField(
+        value = phoneNumber,
+        onValueChange = {
+            phoneNumber = it
+        },
+        modifier = Modifier.fillMaxWidth()
+    )
 }

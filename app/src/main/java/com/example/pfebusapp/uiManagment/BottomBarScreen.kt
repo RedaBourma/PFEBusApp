@@ -13,21 +13,21 @@ sealed class BottomBarScreen(
 ){
     object Home : BottomBarScreen(
         route = "home",
-        title = "Home",
+        title = "Accueil",
         icon = androidx.compose.material.icons.Icons.Default.Home,
-        contetnDescription = "Navigate to home screen"
+        contetnDescription = "Naviguer vers l'écran d'accueil"
     )
     object BusRoutes : BottomBarScreen(
         route = "busRoutes",
-        title = "Bus Routes",
+        title = "Itinéraires",
         icon = androidx.compose.material.icons.Icons.Default.Place,
-        contetnDescription = "Navigate to bus routes screen"
+        contetnDescription = "Naviguer vers l'écran des itinéraires de bus"
     )
     object Profile : BottomBarScreen(
         route = "profile",
-        title = "Profile",
+        title = "Profil",
         icon = androidx.compose.material.icons.Icons.Default.Person,
-        contetnDescription = "Navigate to profile screen"
+        contetnDescription = "Naviguer vers l'écran de profil"
     )
 
     companion object{

@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -38,14 +39,15 @@ fun BottomNavigationBar(navController: NavController) {
 
     Surface(
         color = MaterialTheme.colorScheme.surface,
-        shadowElevation = 8.dp,
-        modifier = Modifier.fillMaxWidth()
+        shadowElevation = 16.dp,
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(65.dp)
-                .padding(4.dp),
+                .height(70.dp)
+                .padding(8.dp),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -103,7 +105,7 @@ private fun NavBarItem(
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
-                .size(40.dp)
+                .size(44.dp)
                 .clip(CircleShape)
                 .background(bgColor)
                 .padding(8.dp)
@@ -119,7 +121,8 @@ private fun NavBarItem(
         Text(
             text = label,
             color = textColor,
-            style = MaterialTheme.typography.labelSmall,
+            // Use the appropriate typography style based on selection
+            style = if (isSelected) MaterialTheme.typography.labelMedium else MaterialTheme.typography.labelSmall,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(top = 2.dp)
         )
