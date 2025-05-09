@@ -1,72 +1,86 @@
 package com.example.pfebusapp.uiComponents
 
-import android.app.DatePickerDialog
+import android.annotation.SuppressLint
 import androidx.compose.foundation.clickable
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import java.util.Calendar
 import java.util.Date
 
+@SuppressLint("DefaultLocale")
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DatePickerTextField(
     modifier: Modifier = Modifier,
     label: String,
     onDateSelected: (Date) -> Unit
 ) {
+    var showDatePicker by remember { mutableStateOf(false) }
+    var selectedDate by remember { mutableStateOf("") }
     val context = LocalContext.current
-    var date by remember { mutableStateOf("") }
     val calendar = Calendar.getInstance()
 
-    val datePickerDialog = DatePickerDialog(
-        context,
-        { _, year, month, dayOfMonth ->
-            // Format in French date style: DD/MM/YYYY
-            val selectedDate = String.format("%02d/%02d/%04d", dayOfMonth, month + 1, year)
-            date = selectedDate
-            
-            // Using Calendar instead of deprecated Date constructor
-            val cal = Calendar.getInstance()
-            cal.set(Calendar.YEAR, year)
-            cal.set(Calendar.MONTH, month)
-            cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-            onDateSelected(cal.time)
-        },
-        calendar.get(Calendar.YEAR),
-        calendar.get(Calendar.MONTH),
-        calendar.get(Calendar.DAY_OF_MONTH)
+    val datePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = calendar.timeInMillis
     )
+
+    if (showDatePicker) {
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        datePickerState.selectedDateMillis?.let { millis ->
+                            val cal = Calendar.getInstance()
+                            cal.timeInMillis = millis
+                            // Format in French date style: DD/MM/YYYY
+                            selectedDate = String.format(
+                                "%02d/%02d/%04d",
+                                cal.get(Calendar.DAY_OF_MONTH),
+                                cal.get(Calendar.MONTH) + 1,
+                                cal.get(Calendar.YEAR)
+                            )
+                            onDateSelected(cal.time)
+                        }
+                        showDatePicker = false
+                    }
+                ) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) {
+                    Text("Annuler")
+                }
+            }
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    }
 
     OutlinedTextField(
         singleLine = true,
-        value = date,
+        value = selectedDate,
         onValueChange = { /* Prevent manual changes */ },
         label = { Text(label, style = MaterialTheme.typography.bodyMedium) },
-        readOnly = true, // Prevent manual input
+        readOnly = true,
         trailingIcon = {
             Icon(
                 imageVector = Icons.Default.DateRange,
                 contentDescription = "Sélectionner une date",
-                modifier = Modifier.clickable { datePickerDialog.show() },
+                modifier = Modifier.clickable { showDatePicker = true },
                 tint = MaterialTheme.colorScheme.primary
             )
         },
         modifier = modifier
-            .clickable { datePickerDialog.show() }, // Open picker on tap
+            .clickable { showDatePicker = true },
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = MaterialTheme.colorScheme.primary,
             unfocusedBorderColor = MaterialTheme.colorScheme.outline,

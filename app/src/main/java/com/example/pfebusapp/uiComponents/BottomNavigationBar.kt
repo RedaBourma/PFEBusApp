@@ -53,7 +53,7 @@ fun BottomNavigationBar(navController: NavController) {
         ) {
             screens.forEach { screen ->
                 val selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true
-                
+
                 NavBarItem(
                     icon = screen.icon,
                     label = screen.title,
@@ -89,7 +89,7 @@ private fun NavBarItem(
     val bgColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent
     val iconColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
     val textColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
-    
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -117,7 +117,7 @@ private fun NavBarItem(
                 modifier = Modifier.size(24.dp)
             )
         }
-        
+
         Text(
             text = label,
             color = textColor,

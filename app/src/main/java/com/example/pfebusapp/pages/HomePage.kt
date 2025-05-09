@@ -2,6 +2,7 @@ package com.example.pfebusapp.pages
 
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,12 +23,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import com.example.pfebusapp.AuthState
 import com.example.pfebusapp.AuthViewModel
 import com.example.pfebusapp.uiComponents.BottomNavigationBar
 import com.example.pfebusapp.userRepository.RegistredUser
 import com.example.pfebusapp.userRepository.UserRepository
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.rememberCameraPositionState
+import com.google.maps.android.compose.rememberMarkerState
 
 @Composable
 fun HomePage(modifier: Modifier = Modifier, navController: NavController, authViewModel: AuthViewModel) {
@@ -43,7 +51,11 @@ fun HomePage(modifier: Modifier = Modifier, navController: NavController, authVi
 //        user.createUser(ctx, "reda@gmail.com", "Reda", "Reda", Date(), "123456789")
 
         when(authState.value){
-            is AuthState.Unauthenticated -> navController.navigate("login")
+            is AuthState.Unauthenticated -> {
+                navController.navigate("login") {
+                    popUpTo(0) { inclusive = true }
+                }
+            }
             else -> Unit
         }
     }
@@ -96,90 +108,110 @@ fun HomePage(modifier: Modifier = Modifier, navController: NavController, authVi
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = authViewModel.getCurrentUser()?.uid ?: "NULL", 
-                style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.primary
-            )
-            Text(
-                text = "Page d'accueil", 
-                style = MaterialTheme.typography.displaySmall,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-
-            when {
-                isLoading -> {
-                    CircularProgressIndicator(
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Text(
-                        text = "Chargement des données utilisateur...", 
-                        modifier = Modifier.padding(top = 16.dp),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                }
-                errorMessage != null -> {
-                    Text(
-                        text = "Erreur: $errorMessage", 
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.error
-                    )
-                }
-                userData != null -> {
-                    Text(
-                        text = userData!!.nom, 
-                        style = MaterialTheme.typography.headlineLarge,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                    Text(
-                        text = userData!!.prenom, 
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                    Text(
-                        text = userData!!.email, 
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                }
-                else -> {
-                    Text(
-                        text = "Aucune donnée utilisateur disponible",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                }
+            // 28.9865, -10.0572
+            val Guelmim = LatLng(28.9865, -10.0572)
+//            val moroccoMarkerState = rememberMarkerState(position = Guelmim)
+            val cameraPositionState = rememberCameraPositionState {
+                position = CameraPosition.fromLatLngZoom(Guelmim, 15f)
+            }
+            GoogleMap(
+                modifier = Modifier
+                    .fillMaxSize(),
+                cameraPositionState = cameraPositionState
+            ){
+//                Box(
+//                   modifier = Modifier
+//                       .padding()
+//                ){
+//
+//                }
             }
 
-            Spacer(modifier = modifier.height(24.dp))
-            TextButton(
-                onClick = {
-                    authViewModel.signout()
-                },
-                colors = androidx.compose.material3.ButtonDefaults.textButtonColors(
-                    contentColor = MaterialTheme.colorScheme.primary
-                )
-            ) {
-                Text(
-                    text = "Se déconnecter",
-                    style = MaterialTheme.typography.labelLarge
-                )
-            }
 
-            TextButton(
-                onClick = {
-                    navController.navigate("busRoutes")
-                },
-                colors = androidx.compose.material3.ButtonDefaults.textButtonColors(
-                    contentColor = MaterialTheme.colorScheme.primary
-                )
-            ) {
-                Text(
-                    text = "Itinéraires de bus",
-                    style = MaterialTheme.typography.labelLarge
-                )
-            }
+//            Text(
+//                text = authViewModel.getCurrentUser()?.uid ?: "NULL",
+//                style = MaterialTheme.typography.headlineMedium,
+//                color = MaterialTheme.colorScheme.primary
+//            )
+//            Text(
+//                text = "Page d'accueil",
+//                style = MaterialTheme.typography.displaySmall,
+//                color = MaterialTheme.colorScheme.onBackground
+//            )
+//
+//            when {
+//                isLoading -> {
+//                    CircularProgressIndicator(
+//                        color = MaterialTheme.colorScheme.primary
+//                    )
+//                    Text(
+//                        text = "Chargement des données utilisateur...",
+//                        modifier = Modifier.padding(top = 16.dp),
+//                        style = MaterialTheme.typography.bodyMedium,
+//                        color = MaterialTheme.colorScheme.onBackground
+//                    )
+//                }
+//                errorMessage != null -> {
+//                    Text(
+//                        text = "Erreur: $errorMessage",
+//                        style = MaterialTheme.typography.bodyMedium,
+//                        color = MaterialTheme.colorScheme.error
+//                    )
+//                }
+//                userData != null -> {
+//                    Text(
+//                        text = userData!!.nom,
+//                        style = MaterialTheme.typography.headlineLarge,
+//                        color = MaterialTheme.colorScheme.onBackground
+//                    )
+//                    Text(
+//                        text = userData!!.prenom,
+//                        style = MaterialTheme.typography.bodyLarge,
+//                        color = MaterialTheme.colorScheme.onBackground
+//                    )
+//                    Text(
+//                        text = userData!!.email,
+//                        style = MaterialTheme.typography.bodyMedium,
+//                        color = MaterialTheme.colorScheme.onBackground
+//                    )
+//                }
+//                else -> {
+//                    Text(
+//                        text = "Aucune donnée utilisateur disponible",
+//                        style = MaterialTheme.typography.bodyMedium,
+//                        color = MaterialTheme.colorScheme.onBackground
+//                    )
+//                }
+//            }
+//
+//            Spacer(modifier = modifier.height(24.dp))
+//            TextButton(
+//                onClick = {
+//                    authViewModel.signout()
+//                },
+//                colors = androidx.compose.material3.ButtonDefaults.textButtonColors(
+//                    contentColor = MaterialTheme.colorScheme.primary
+//                )
+//            ) {
+//                Text(
+//                    text = "Se déconnecter",
+//                    style = MaterialTheme.typography.labelLarge
+//                )
+//            }
+//
+//            TextButton(
+//                onClick = {
+//                    navController.navigate("busRoutes")
+//                },
+//                colors = androidx.compose.material3.ButtonDefaults.textButtonColors(
+//                    contentColor = MaterialTheme.colorScheme.primary
+//                )
+//            ) {
+//                Text(
+//                    text = "Itinéraires de bus",
+//                    style = MaterialTheme.typography.labelLarge
+//                )
+//            }
         }
     }
 }
