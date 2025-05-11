@@ -1,8 +1,10 @@
 package com.example.pfebusapp.pages
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -11,20 +13,17 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import com.example.pfebusapp.AuthViewModel
 import com.example.pfebusapp.uiComponents.BottomNavigationBar
 
 @Composable
 fun ProfilePage(modifier: Modifier = Modifier, navController: NavController, authViewModel: AuthViewModel) {
-    Scaffold (
-        bottomBar = {
-            BottomNavigationBar(navController = navController)
-        }
-    ){ paddingValues ->
+    Box(modifier = Modifier.fillMaxSize()) {
+        // Main content
         Column(
-            modifier = modifier.fillMaxSize()
-                .padding(paddingValues),
+            modifier = modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ){
@@ -49,6 +48,16 @@ fun ProfilePage(modifier: Modifier = Modifier, navController: NavController, aut
                     style = MaterialTheme.typography.labelLarge
                 )
             }
+        }
+        
+        // Bottom navigation - always on top layer
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter)
+                .zIndex(2f)
+        ) {
+            BottomNavigationBar(navController = navController)
         }
     }
 }

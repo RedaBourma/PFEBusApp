@@ -25,6 +25,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -32,7 +33,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.pfebusapp.uiManagment.BottomBarScreen
 
 @Composable
-fun BottomNavigationBar(navController: NavController) {
+fun BottomNavigationBar(navController: NavController, modifier: Modifier = Modifier.zIndex(3f)) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
     val screens = BottomBarScreen.getAllScreens()
@@ -40,7 +41,7 @@ fun BottomNavigationBar(navController: NavController) {
     Surface(
         color = MaterialTheme.colorScheme.surface,
         shadowElevation = 16.dp,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
     ) {
         Row(
@@ -55,6 +56,7 @@ fun BottomNavigationBar(navController: NavController) {
                 val selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true
 
                 NavBarItem(
+                    modifier = Modifier,
                     icon = screen.icon,
                     label = screen.title,
                     isSelected = selected,
@@ -83,7 +85,8 @@ private fun NavBarItem(
     label: String,
     isSelected: Boolean,
     contentDescription: String?,
-    onItemClick: () -> Unit
+    onItemClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     // Use fixed colors rather than animations to avoid flickering
     val bgColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent
@@ -93,7 +96,7 @@ private fun NavBarItem(
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
-        modifier = Modifier
+        modifier = modifier
             .clip(CircleShape)
             .clickable(
                 onClick = onItemClick,
@@ -104,7 +107,7 @@ private fun NavBarItem(
     ) {
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier
+            modifier = modifier
                 .size(44.dp)
                 .clip(CircleShape)
                 .background(bgColor)

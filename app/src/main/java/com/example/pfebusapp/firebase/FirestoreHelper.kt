@@ -14,6 +14,7 @@ class FirestoreHelper {
     }
 
     companion object {
+        const val BUS_COLLECTION = "bus"
         const val USERS_COLLECTION = "users"
     }
 
