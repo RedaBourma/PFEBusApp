@@ -1,5 +1,6 @@
 package com.example.pfebusapp.busRepository
 
+import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.firestore.GeoPoint
 
 data class Bus (
@@ -10,12 +11,13 @@ data class Bus (
     val status: String = "",
     val position: GeoPoint = GeoPoint(0.0, 0.0), // [latitude, longitude]
     val trajet: List<GeoPoint> = listOf() // List of [latitude, longitude] positions
+//    val trajet: List<LatLng> = listOf() // List of [latitude, longitude] positions
 ){
 
-    // Helper functions
-//    fun getPositionLatitude(): Double = if (position.size >= 1) position[0] else 0.0
-//    fun getPositionLongitude(): Double = if (position.size >= 2) position[1] else 0.0
-    
+
+    fun getPosLatitude(): Double = position.latitude
+    fun getPosLongitude(): Double = position.longitude
+
     // Get a readable description of the status
 //    fun getStatusDescription(): String {
 //        return when (status.lowercase()) {

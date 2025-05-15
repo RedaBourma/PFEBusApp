@@ -2,10 +2,12 @@ package com.example.pfebusapp.pages
 
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,6 +18,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -55,6 +58,17 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.vectorResource
+import com.example.pfebusapp.R
+import com.example.pfebusapp.utils.Converts
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.LatLngBounds
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapType
+import com.google.maps.android.compose.Polyline
 
 @Composable
 fun HomePage(modifier: Modifier = Modifier, navController: NavController, authViewModel: AuthViewModel) {
@@ -65,7 +79,9 @@ fun HomePage(modifier: Modifier = Modifier, navController: NavController, authVi
     var showBottomSheet by remember { mutableStateOf(true) }
     var buses by remember { mutableStateOf<List<Bus>?>(null) }
     var isLoadingBuses by remember { mutableStateOf(true) }
-    var busDataSource by remember { mutableStateOf("") }
+//    var busDataSource by remember { mutableStateOf("") }
+    var selectedBus by remember { mutableStateOf<Bus?>(null) }
+    var ctx = LocalContext.current
 
     LaunchedEffect(authState.value) {
         when(authState.value){
@@ -106,6 +122,7 @@ fun HomePage(modifier: Modifier = Modifier, navController: NavController, authVi
         Log.d("HomePage", "Buses fetched: $buses")
         isLoadingBuses = false
     }
+
     
 //    Log.d("HomePage", "After LaunchedEffect - buses: ${buses?.size ?: 0}")
 
@@ -123,9 +140,47 @@ fun HomePage(modifier: Modifier = Modifier, navController: NavController, authVi
             val cameraPositionState = rememberCameraPositionState {
                 position = CameraPosition.fromLatLngZoom(Guelmim, 15f)
             }
+            LaunchedEffect(selectedBus?.trajet) {
+                 selectedBus?.trajet?.let { points ->
+                     if (points.isNotEmpty()) {
+                         val latLngBounds = LatLngBounds.builder().apply {
+                             Converts().convertGeoPointListToLatLngList(points).forEach { include(it) }
+                         }.build()
+                         cameraPositionState.animate(CameraUpdateFactory.newLatLngBounds(latLngBounds,100), 100)
+                         cameraPositionState.animate(CameraUpdateFactory.scrollBy(0f, 400f), 500)
+//
+                     }
+                 }
+            }
+//            LaunchedEffect(selectedBus?.trajet) {
+//                selectedBus?.trajet?.let { points ->
+//                    if (points.isNotEmpty()) {
+//                        val latLngBounds = LatLngBounds.builder().apply {
+//                            Converts().convertGeoPointListToLatLngList(points).forEach { include(it) }
+//                        }.build()
+//
+//                        val context = ctx
+//                        val displayMetrics = context.resources.displayMetrics
+//                        val screenWidth = displayMetrics.widthPixels
+//                        val screenHeight = displayMetrics.heightPixels
+//
+//                        val adjustedHeight = (screenHeight * 0.6).toInt() // only use top 60% of screen
+//
+//                        cameraPositionState.animate(
+//                            CameraUpdateFactory.newLatLngBounds(
+//                                latLngBounds,
+//                                screenWidth,
+//                                adjustedHeight,
+//                                20 // uniform padding
+//                            )
+//                        )
+//                    }
+//                }
+//            }
             GoogleMap(
                 modifier = Modifier.fillMaxSize(),
-                cameraPositionState = cameraPositionState
+                cameraPositionState = cameraPositionState,
+                properties = MapProperties(mapType = MapType.NORMAL, isTrafficEnabled = true)
             ) {
                 // Add markers for each bus
 //                buses?.forEach { bus ->
@@ -138,6 +193,9 @@ fun HomePage(modifier: Modifier = Modifier, navController: NavController, authVi
 //                        )
 //                    }
 //                }
+                if(selectedBus != null){
+                    Polyline(points = Converts().convertGeoPointListToLatLngList(selectedBus!!.trajet), color = MaterialTheme.colorScheme.primary)
+                }
             }
         }
 
@@ -149,11 +207,11 @@ fun HomePage(modifier: Modifier = Modifier, navController: NavController, authVi
                 .zIndex(1f)
         ) {
             Column(modifier = Modifier.padding(bottom = 70.dp)) {
-                Text(
-                    "Buses Available: ${buses?.size ?: 0}${if (busDataSource.isNotEmpty()) " ($busDataSource)" else ""}",
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.padding(16.dp)
-                )
+//                Text(
+//                    "Buses Available: ${buses?.size ?: 0}${if (busDataSource.isNotEmpty()) " ($busDataSource)" else ""}",
+//                    style = MaterialTheme.typography.titleLarge,
+//                    modifier = Modifier.padding(16.dp)
+//                )
                 
                 if (isLoadingBuses) {
                     LinearProgressIndicator(
@@ -175,11 +233,11 @@ fun HomePage(modifier: Modifier = Modifier, navController: NavController, authVi
                     )
                 } else {
                     LazyColumn {
-                        items(buses!!) { bus ->
+                        items(buses!!.reversed()) { bus ->
                             ListItem(
                                 headlineContent = {
                                     Text(
-                                        "Bus ${bus.num} - ${bus.marque}",
+                                        "Bus ${bus.num}",
                                         style = MaterialTheme.typography.titleMedium
                                     )
                                 },
@@ -213,7 +271,7 @@ fun HomePage(modifier: Modifier = Modifier, navController: NavController, authVi
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Icon(
-                                            Icons.Default.Favorite,
+                                            painter = painterResource(id = R.drawable.bus_svgrepo_com),
                                             contentDescription = "Bus icon",
                                             tint = when (bus.status.lowercase()) {
                                                 "retour" -> MaterialTheme.colorScheme.primary
@@ -233,11 +291,17 @@ fun HomePage(modifier: Modifier = Modifier, navController: NavController, authVi
                                     )
                                 },
                                 colors = ListItemDefaults.colors(
-                                    containerColor = MaterialTheme.colorScheme.surface
+                                    containerColor = if (selectedBus == bus) 
+                                        MaterialTheme.colorScheme.primaryContainer 
+                                    else 
+                                        MaterialTheme.colorScheme.surface
                                 ),
                                 modifier = Modifier
                                     .padding(horizontal = 8.dp, vertical = 4.dp)
                                     .clip(RoundedCornerShape(12.dp))
+                                    .clickable {
+                                        selectedBus = if (selectedBus == bus) null else bus
+                                    }
                             )
                         }
                     }

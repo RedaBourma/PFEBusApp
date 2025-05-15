@@ -20,7 +20,7 @@ val CoolGray = Color(0xFF607D8B)       // Cool gray for secondary texts
 // Dark theme colors
 val DarkCoralRed = Color(0xFFD32F2F)   // Darker primary for dark theme
 val DarkOrange = Color(0xFFE64A19)     // Dark variation for emphasis
-val DeepRed = Color(0xFFB71C1C)        // Deep red for dark theme accents
+val DeepRed = Color(0xFF770000)        // Deep red for dark theme accents
 
 val Black = Color(0xFF121212)          // Almost black for dark theme backgrounds
 val DarkGray = Color(0xFF1E1E1E)       // Dark gray for surfaces

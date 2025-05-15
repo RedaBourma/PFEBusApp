@@ -23,6 +23,8 @@ class BusRepository {
         return snapshot.toObjects(Bus::class.java)
     }
 
+
+
 //    fun getAllBusData(): List<Bus>? {
 //        db.collection(FirestoreHelper.BUS_COLLECTION).get()
 //            .addOnSuccessListener { result ->
