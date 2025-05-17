@@ -2,6 +2,11 @@ package com.example.pfebusapp.busRepository
 
 import android.util.Log
 import com.example.pfebusapp.firebase.FirestoreHelper
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.GeoPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 class BusRepository {
@@ -18,9 +23,97 @@ class BusRepository {
 //        null
 //    }
 
-    suspend fun getAllBusData(): List<Bus> {
-        val snapshot = db.collection(FirestoreHelper.BUS_COLLECTION).get().await()
-        return snapshot.toObjects(Bus::class.java)
+    fun getAllBusData(
+        onSuccess: (List<Bus>) -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                Log.d(TAG, "Starting bus data fetch from collection: ${FirestoreHelper.BUS_COLLECTION}")
+                val snapshot = db.collection(FirestoreHelper.BUS_COLLECTION).get().await()
+                Log.d(TAG, "Query completed. Documents count: ${snapshot.size()}")
+                
+                if (snapshot.isEmpty) {
+                    Log.w(TAG, "No documents found in collection ${FirestoreHelper.BUS_COLLECTION}")
+                    onSuccess(emptyList())
+                    return@launch
+                }
+
+                val buses = snapshot.documents.mapNotNull { doc ->
+                    try {
+                        val data = doc.data ?: run {
+                            Log.e(TAG, "Document ${doc.id} has null data")
+                            return@mapNotNull null
+                        }
+                        
+                        Log.d(TAG, "Processing document ${doc.id}")
+                        
+                        // Get position directly as GeoPoint
+                        val position = data["position"] as? GeoPoint ?: GeoPoint(0.0, 0.0)
+                        Log.d(TAG, "Position: $position")
+                        
+                        // Convert trajet array
+                        val trajetList = (data["trajet"] as? List<*>)?.mapNotNull { trajetItem ->
+                            if (trajetItem is Map<*, *>) {
+                                @Suppress("UNCHECKED_CAST")
+                                (trajetItem as Map<String, GeoPoint>).toMap()
+                            } else {
+                                Log.e(TAG, "Invalid trajet item type: ${trajetItem?.javaClass?.simpleName}")
+                                null
+                            }
+                        } ?: listOf()
+                        Log.d(TAG, "Trajet list: $trajetList")
+
+                        // Get busStop reference
+                        val busStopRef = data["busStop"] as? com.google.firebase.firestore.DocumentReference
+                        
+                        // Get busStops array
+                        val busStopsRefs = (data["busStops"] as? List<*>)?.mapNotNull { 
+                            it as? com.google.firebase.firestore.DocumentReference 
+                        } ?: listOf()
+
+                        val bus = Bus(
+                            num = data["num"] as? String ?: "",
+                            immatriculation = data["immatriculation"] as? String ?: "",
+                            marque = data["marque"] as? String ?: "",
+                            nbrPlace = (data["nbrPlace"] as? Number)?.toInt() ?: 0,
+                            status = data["status"] as? String ?: "",
+                            position = position,
+                            trajet = trajetList,
+                            busStop = busStopRef,
+                            busStops = busStopsRefs
+                        )
+                        Log.d(TAG, "Successfully created Bus object: $bus")
+                        bus
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Error converting document ${doc.id}", e)
+                        null
+                    }
+                }
+
+                Log.d(TAG, "Total buses converted: ${buses.size}")
+                if (buses.isEmpty()) {
+                    Log.w(TAG, "No buses were successfully converted from the documents")
+                }
+                
+                if (buses.isNotEmpty()) {
+                    val firstBus = buses.first()
+                    Log.d(TAG, "First bus details:")
+                    Log.d(TAG, "- num: ${firstBus.num}")
+                    Log.d(TAG, "- marque: ${firstBus.marque}")
+                    Log.d(TAG, "- immatriculation: ${firstBus.immatriculation}")
+                    Log.d(TAG, "- position: ${firstBus.position}")
+                    Log.d(TAG, "- trajet size: ${firstBus.trajet.size}")
+                    Log.d(TAG, "- busStop: ${firstBus.busStop}")
+                    Log.d(TAG, "- busStops size: ${firstBus.busStops.size}")
+                }
+                
+                onSuccess(buses)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to fetch bus data", e)
+                onFailure(e)
+            }
+        }
     }
 
 
