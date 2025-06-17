@@ -14,6 +14,8 @@ import com.example.pfebusapp.AuthState
 import com.example.pfebusapp.AuthViewModel
 import com.example.pfebusapp.pages.BusRoutesPage
 import com.example.pfebusapp.pages.HomePage
+import com.example.pfebusapp.pages.LocationsImportPage
+import com.example.pfebusapp.pages.LocationsManagementPage
 import com.example.pfebusapp.pages.LoginPage
 import com.example.pfebusapp.pages.ProfilePage
 import com.example.pfebusapp.pages.SignupPage
@@ -56,6 +58,13 @@ fun MyAppNavigation(modifier: Modifier = Modifier, authViewModel: AuthViewModel)
             }
             composable("profile") {
                 ProfilePage(modifier, navController, authViewModel)
+            }
+            // Add locations management screens
+            composable("locationsManagement") {
+                LocationsManagementPage(modifier, navController, authViewModel)
+            }
+            composable("locationsImport") {
+                LocationsImportPage(modifier, navController, authViewModel)
             }
         }
     }

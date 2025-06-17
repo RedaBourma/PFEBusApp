@@ -1,0 +1,69 @@
+<resources>
+    <string name="app_name">Bus Guelmim</string>
+    
+    <!-- Location Input -->
+    <string name="current_location">Position actuelle</string>
+    <string name="destination">Destination</string>
+    <string name="search_location">Rechercher un lieu</string>
+    <string name="search_destination">Rechercher une destination</string>
+    <string name="get_current_location">Obtenir la position actuelle</string>
+    
+    <!-- Button -->
+    <string name="find_bus_routes">TROUVER DES ITINÉRAIRES</string>
+    
+    <!-- Route Information -->
+    <string name="routes_found">Itinéraires trouvés : %1$d</string>
+    <string name="best_route">Meilleur itinéraire : %1$d bus, %2$d correspondance(s), %3$d km à pied</string>
+    <string name="bus_info">Bus %1$s - %2$s</string>
+    
+    <!-- Loading and Error Messages -->
+    <string name="finding_routes">Recherche des meilleurs itinéraires…</string>
+    <string name="error_select_locations">Veuillez sélectionner à la fois votre position et votre destination</string>
+    <string name="error_no_buses">Aucun bus disponible pour trouver des itinéraires</string>
+    <string name="error_no_routes">Aucun itinéraire trouvé entre ces lieux</string>
+    <string name="error_bus_data">Données de bus non disponibles, veuillez réessayer</string>
+    <string name="error_coordinates">Impossible d\'obtenir les coordonnées pour ce lieu</string>
+    <string name="error_location_fallback">Impossible d\'obtenir votre position - utilisation du centre de Guelmim par défaut</string>
+    
+    <!-- Map Labels -->
+    <string name="marker_current_location">Position actuelle</string>
+    <string name="marker_destination">Destination</string>
+    <string name="marker_bus_stop">Bus %1$s</string>
+    
+    <!-- Route Visualization -->
+    <string name="walking">Marche à pied</string>
+    <string name="walking_distance">%1$d km (%2$d min)</string>
+    <string name="transfer">Correspondance</string>
+    <string name="transfer_distance">%1$d km (%2$d min)</string>
+    <string name="bus_route">Trajet en bus</string>
+    
+    <!-- Location Management -->
+    <string name="locations_management">Gestion des emplacements</string>
+    <string name="search_locations">Rechercher des emplacements</string>
+    <string name="no_locations_found">Aucun emplacement trouvé</string>
+    <string name="add_location">Ajouter un emplacement</string>
+    <string name="edit_location">Modifier l\'emplacement</string>
+    <string name="location_name">Nom de l\'emplacement</string>
+    <string name="location_type">Type d\'emplacement</string>
+    <string name="latitude">Latitude</string>
+    <string name="longitude">Longitude</string>
+    <string name="city">Ville</string>
+    <string name="region">Région</string>
+    <string name="save">Enregistrer</string>
+    <string name="cancel">Annuler</string>
+    <string name="delete">Supprimer</string>
+    <string name="confirm_delete">Confirmer la suppression</string>
+    <string name="confirm_delete_location">Êtes-vous sûr de vouloir supprimer l\'emplacement : %1$s ?</string>
+    
+    <!-- Location Import -->
+    <string name="import_locations">Importer des emplacements</string>
+    <string name="start_import">Démarrer l\'importation</string>
+    <string name="importing_locations">Importation des emplacements…</string>
+    <string name="import_complete">Importation terminée avec succès !</string>
+    <string name="import_failed">Échec de l\'importation : %1$s</string>
+    <string name="imported_count">%1$d nouveaux emplacements importés avec succès</string>
+    <string name="location_database_status">État de la base de données d\'emplacements</string>
+    <string name="import_from_google_maps">Importer des emplacements depuis Google Maps</string>
+    <string name="import_description">Cela va récupérer les emplacements pour Guelmim et la région environnante depuis Google Maps et les enregistrer dans votre base de données Firebase.</string>
+    <string name="api_usage_note">Remarque : Ce processus utilise l\'API Google Maps et peut entraîner des frais selon votre utilisation de l\'API.</string>
+</resources> 

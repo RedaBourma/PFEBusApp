@@ -8,6 +8,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
+import java.util.UUID
 
 class BusRepository {
     private val TAG = "BusRepository"
@@ -71,6 +73,56 @@ class BusRepository {
                         val busStopsRefs = (data["busStops"] as? List<*>)?.mapNotNull { 
                             it as? com.google.firebase.firestore.DocumentReference 
                         } ?: listOf()
+                        
+                        // Generate BusStop objects from the trajet data
+                        val stops = mutableListOf<BusStop>()
+                        
+                        // Process each trajet entry to create stops
+                        trajetList.forEach { stopMap ->
+                            stopMap.forEach { (stopName, geoPoint) ->
+                                val stopId = "stop_${UUID.randomUUID().toString().substring(0, 8)}"
+                                
+                                stops.add(
+                                    BusStop(
+                                        id = stopId,
+                                        name = stopName,
+                                        latitude = geoPoint.latitude,
+                                        longitude = geoPoint.longitude
+                                    )
+                                )
+                            }
+                        }
+                        
+                        // Ensure there are at least some stops
+                        if (stops.isEmpty() && trajetList.isNotEmpty()) {
+                            // Create at least two generic stops if we have trajet data but no proper stops
+                            val firstPoint = trajetList.firstOrNull()?.values?.firstOrNull()
+                            val lastPoint = trajetList.lastOrNull()?.values?.lastOrNull()
+                            
+                            if (firstPoint != null) {
+                                stops.add(
+                                    BusStop(
+                                        id = "start_${doc.id}",
+                                        name = "Départ",
+                                        latitude = firstPoint.latitude,
+                                        longitude = firstPoint.longitude
+                                    )
+                                )
+                            }
+                            
+                            if (lastPoint != null && lastPoint != firstPoint) {
+                                stops.add(
+                                    BusStop(
+                                        id = "end_${doc.id}",
+                                        name = "Arrivée",
+                                        latitude = lastPoint.latitude,
+                                        longitude = lastPoint.longitude
+                                    )
+                                )
+                            }
+                        }
+                        
+                        Log.d(TAG, "Generated ${stops.size} bus stops")
 
                         val bus = Bus(
                             num = data["num"] as? String ?: "",
@@ -81,7 +133,8 @@ class BusRepository {
                             position = position,
                             trajet = trajetList,
                             busStop = busStopRef,
-                            busStops = busStopsRefs
+                            busStops = busStopsRefs,
+                            stops = stops
                         )
                         Log.d(TAG, "Successfully created Bus object: $bus")
                         bus
@@ -106,14 +159,75 @@ class BusRepository {
                     Log.d(TAG, "- trajet size: ${firstBus.trajet.size}")
                     Log.d(TAG, "- busStop: ${firstBus.busStop}")
                     Log.d(TAG, "- busStops size: ${firstBus.busStops.size}")
+                    Log.d(TAG, "- stops size: ${firstBus.stops.size}")
                 }
                 
-                onSuccess(buses)
+                // Add some fallback buses if the list is empty (for testing)
+                val finalBusList = if (buses.isEmpty()) createFallbackBuses() else buses
+                
+                onSuccess(finalBusList)
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to fetch bus data", e)
                 onFailure(e)
             }
         }
+    }
+    
+    // Create some fallback buses for testing if Firestore data is missing
+    private fun createFallbackBuses(): List<Bus> {
+        Log.d(TAG, "Creating fallback buses for testing")
+        
+        // Guelmim center coordinates
+        val guelmimCenter = GeoPoint(28.9865, -10.0572)
+        
+        // Create some bus stops for the first route
+        val route1Stops = listOf(
+            BusStop("stop1", "Gare routière", 28.9865, -10.0572),
+            BusStop("stop2", "Centre ville", 28.9882, -10.0595),
+            BusStop("stop3", "Marché", 28.9901, -10.0621),
+            BusStop("stop4", "EST Guelmim", 28.9830, -10.0625)
+        )
+        
+        // Create some bus stops for the second route
+        val route2Stops = listOf(
+            BusStop("stop5", "Gare routière", 28.9865, -10.0572),
+            BusStop("stop6", "Hôpital", 28.9912, -10.0550),
+            BusStop("stop7", "Université", 28.9950, -10.0525),
+            BusStop("stop8", "Centre commercial", 28.9980, -10.0510)
+        )
+        
+        // Create GeoPoint maps for trajet for first bus
+        val trajet1 = route1Stops.map { stop ->
+            mapOf(stop.name to GeoPoint(stop.latitude, stop.longitude))
+        }
+        
+        // Create GeoPoint maps for trajet for second bus
+        val trajet2 = route2Stops.map { stop ->
+            mapOf(stop.name to GeoPoint(stop.latitude, stop.longitude))
+        }
+        
+        return listOf(
+            Bus(
+                num = "1",
+                immatriculation = "1234-AB",
+                marque = "Mercedes",
+                nbrPlace = 30,
+                status = "En service",
+                position = guelmimCenter,
+                trajet = trajet1,
+                stops = route1Stops
+            ),
+            Bus(
+                num = "2",
+                immatriculation = "5678-CD",
+                marque = "Volvo",
+                nbrPlace = 25,
+                status = "En service",
+                position = guelmimCenter,
+                trajet = trajet2,
+                stops = route2Stops
+            )
+        )
     }
 
 

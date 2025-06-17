@@ -20,15 +20,34 @@ import java.util.Date
 fun DatePickerTextField(
     modifier: Modifier = Modifier,
     label: String,
-    onDateSelected: (Date) -> Unit
+    initialDate: Date? = null,
+    onDateSelected: (Date) -> Unit,
+    enabled: Boolean = true
 ) {
     var showDatePicker by remember { mutableStateOf(false) }
-    var selectedDate by remember { mutableStateOf("") }
+    
+    // Format initial date if provided
+    var selectedDate by remember { 
+        val initialDateStr = if (initialDate != null) {
+            val cal = Calendar.getInstance()
+            cal.time = initialDate
+            String.format(
+                "%02d/%02d/%04d",
+                cal.get(Calendar.DAY_OF_MONTH),
+                cal.get(Calendar.MONTH) + 1,
+                cal.get(Calendar.YEAR)
+            )
+        } else {
+            ""
+        }
+        mutableStateOf(initialDateStr)
+    }
+    
     val context = LocalContext.current
     val calendar = Calendar.getInstance()
 
     val datePickerState = rememberDatePickerState(
-        initialSelectedDateMillis = calendar.timeInMillis
+        initialSelectedDateMillis = initialDate?.time ?: calendar.timeInMillis
     )
 
     if (showDatePicker) {
@@ -71,16 +90,17 @@ fun DatePickerTextField(
         onValueChange = { /* Prevent manual changes */ },
         label = { Text(label, style = MaterialTheme.typography.bodyMedium) },
         readOnly = true,
+        enabled = enabled,
         trailingIcon = {
             Icon(
                 imageVector = Icons.Default.DateRange,
                 contentDescription = "Sélectionner une date",
-                modifier = Modifier.clickable { showDatePicker = true },
+                modifier = Modifier.clickable(enabled = enabled) { if (enabled) showDatePicker = true },
                 tint = MaterialTheme.colorScheme.primary
             )
         },
         modifier = modifier
-            .clickable { showDatePicker = true },
+            .clickable(enabled = enabled) { if (enabled) showDatePicker = true },
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = MaterialTheme.colorScheme.primary,
             unfocusedBorderColor = MaterialTheme.colorScheme.outline,

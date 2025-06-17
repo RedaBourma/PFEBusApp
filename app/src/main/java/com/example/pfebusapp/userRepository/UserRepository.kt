@@ -74,4 +74,50 @@ class UserRepository {
                 onFailure(e)
             }
     }
+    
+    fun updateUserData(
+        userId: String,
+        nom: String,
+        prenom: String,
+        dtNaiss: Date,
+        tel: String,
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        // First get the document ID based on the user ID
+        db.collection(FirestoreHelper.USERS_COLLECTION)
+            .whereEqualTo("id", userId)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                if (snapshot.isEmpty) {
+                    onFailure(Exception("User document not found"))
+                    return@addOnSuccessListener
+                }
+                
+                // Update the document with the new data
+                val docId = snapshot.documents.first().id
+                val updates = hashMapOf(
+                    "nom" to nom,
+                    "prenom" to prenom,
+                    "dtNaiss" to dtNaiss,
+                    "tel" to tel
+                )
+                
+                db.collection(FirestoreHelper.USERS_COLLECTION)
+                    .document(docId)
+                    .update(updates as Map<String, Any>)
+                    .addOnSuccessListener {
+                        Log.d("UserRepository", "User data updated successfully")
+                        onSuccess()
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e("UserRepository", "Error updating user data", e)
+                        onFailure(e)
+                    }
+            }
+            .addOnFailureListener { e ->
+                Log.e("UserRepository", "Error finding user document", e)
+                onFailure(e)
+            }
+    }
 }

@@ -5,11 +5,25 @@ import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.GeoPoint
 
 data class BusStop(
+    val id: String = "",
     val name: String = "",
-    val location: GeoPoint = GeoPoint(0.0, 0.0),
-//    val arrivalTime: String = "", // Optional: for future use
-//    val isTerminal: Boolean = false // Optional: to mark start/end stops
-)
+    val latitude: Double = 0.0,
+    val longitude: Double = 0.0,
+    val type: String = "bus_stop"
+) {
+    constructor(
+        id: String,
+        name: String,
+        location: GeoPoint
+    ) : this(
+        id = id,
+        name = name,
+        latitude = location.latitude,
+        longitude = location.longitude
+    )
+    
+    fun toGeoPoint(): GeoPoint = GeoPoint(latitude, longitude)
+}
 
 data class Bus(
     val num: String = "",
@@ -20,13 +34,20 @@ data class Bus(
     val position: GeoPoint = GeoPoint(0.0, 0.0),
     val trajet: List<Map<String, GeoPoint>> = listOf(),
     val busStop: DocumentReference? = null,
-    val busStops: List<DocumentReference> = listOf()
+    val busStops: List<DocumentReference> = listOf(),
+    val stops: List<BusStop> = listOf()
 ) {
+    val busNumber: String
+        get() = num
+    
+    val busName: String
+        get() = if (marque.isNotEmpty()) "$marque" else "Bus $num"
+    
     fun getPosLatitude(): Double = position.latitude
     fun getPosLongitude(): Double = position.longitude
 
     // Helper function to get just the locations from the stops
-//    fun getTrajetLocations(): List<GeoPoint> = trajet.map { it.location }
+    fun getStopPoints(): List<GeoPoint> = stops.map { GeoPoint(it.latitude, it.longitude) }
 
     // Get a readable description of the status
 //    fun getStatusDescription(): String {

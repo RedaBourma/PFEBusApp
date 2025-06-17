@@ -3,7 +3,9 @@ package com.example.pfebusapp.ui.theme
 import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Shapes
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
@@ -14,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
 
@@ -57,6 +60,13 @@ private val LightColorScheme = lightColorScheme(
     error = Color(0xFFD32F2F)
 )
 
+// Define app shapes
+private val AppShapes = Shapes(
+    small = RoundedCornerShape(8.dp),
+    medium = RoundedCornerShape(12.dp),
+    large = RoundedCornerShape(16.dp)
+)
+
 @Composable
 fun PFEBusAppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -69,7 +79,6 @@ fun PFEBusAppTheme(
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
-
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
@@ -92,6 +101,7 @@ fun PFEBusAppTheme(
     MaterialTheme(
         colorScheme = colorScheme,
         typography = Typography,
+        shapes = AppShapes,
         content = content
     )
 }
